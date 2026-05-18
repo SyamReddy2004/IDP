@@ -4,6 +4,8 @@ import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Upload from './components/Upload';
 import ReviewPage from './components/ReviewPage';
+import DocumentsPage from './components/DocumentsPage';
+import SettingsPage from './components/SettingsPage';
 
 function App() {
   return (
@@ -13,8 +15,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="upload" element={<Upload />} />
           <Route path="review/:id" element={<ReviewPage />} />
-          <Route path="documents" element={<div className="p-8 text-white">Documents Page (Coming Soon)</div>} />
-          <Route path="settings" element={<div className="p-8 text-white">Settings Page (Coming Soon)</div>} />
+          <Route path="documents" element={<DocumentsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

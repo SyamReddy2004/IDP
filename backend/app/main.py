@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.session import engine
@@ -24,6 +25,10 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
+
+import os
+os.makedirs("data/media/uploads", exist_ok=True)
+app.mount("/media", StaticFiles(directory="data/media/uploads"), name="media")
 
 @app.get("/")
 def root():

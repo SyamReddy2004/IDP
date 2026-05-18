@@ -1,9 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload as UploadIcon, File, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload as UploadIcon, File, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Upload = () => {
   const [files, setFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const navigate = useNavigate();
 
   const onDrop = useCallback(acceptedFiles => {
     setFiles(prev => [...prev, ...acceptedFiles.map(file => Object.assign(file, {
@@ -16,12 +20,38 @@ const Upload = () => {
     accept: {
       'application/pdf': ['.pdf'],
       'image/jpeg': ['.jpeg', '.jpg'],
-      'image/png': ['.png']
+      'image/png': ['.png'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
     }
   });
 
   const removeFile = name => {
     setFiles(files => files.filter(file => file.name !== name));
+  };
+
+  const handleUpload = async () => {
+    if (files.length === 0) return;
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', files[0]);
+
+      const response = await axios.post('/api/v1/documents/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log("Upload successful:", response.data);
+      navigate(`/review/${response.data.id}`);
+
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload document. Please make sure the backend is running.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -42,7 +72,7 @@ const Upload = () => {
         </p>
         <p className="text-gray-400 mb-6">or click to select files from your computer</p>
         <div className="text-sm text-gray-500">
-          Supported files: PDF, JPEG, PNG
+          Supported files: PDF, DOCX, JPEG, PNG
         </div>
       </div>
 
@@ -74,9 +104,13 @@ const Upload = () => {
           </div>
           
           <div className="mt-6 flex justify-end">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/30 flex items-center space-x-2">
-              <UploadIcon size={20} />
-              <span>Process {files.length} File{files.length > 1 ? 's' : ''}</span>
+            <button 
+              onClick={handleUpload}
+              disabled={isUploading}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/30 flex items-center space-x-2"
+            >
+              {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadIcon size={20} />}
+              <span>{isUploading ? 'Processing...' : `Process ${files.length} File${files.length > 1 ? 's' : ''}`}</span>
             </button>
           </div>
         </div>

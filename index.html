@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDP System - Access Index</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            padding: 40px; 
+            line-height: 1.6;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        h1 { 
+            color: #60a5fa; 
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+        .card { 
+            background: #1e293b; 
+            border: 1px solid #334155; 
+            padding: 24px; 
+            border-radius: 12px; 
+            margin-bottom: 24px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        h2 {
+            margin-top: 0;
+            color: #f1f5f9;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        p {
+            color: #cbd5e1;
+        }
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        a.btn { 
+            display: inline-block; 
+            background: #2563eb; 
+            color: white; 
+            text-decoration: none; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            transition: background 0.2s;
+        }
+        a.btn:hover { 
+            background: #1d4ed8; 
+        }
+        a.btn.secondary { 
+            background: #475569; 
+        }
+        a.btn.secondary:hover { 
+            background: #334155; 
+        }
+        code { 
+            background: #020617; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            color: #10b981; 
+            font-family: monospace;
+            font-size: 1rem;
+            display: inline-block;
+            margin-top: 10px;
+            border: 1px solid #1e293b;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid #334155;
+            color: #94a3b8;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        li strong {
+            color: #e2e8f0;
+            display: inline-block;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IDP System Index</h1>
+        <p class="subtitle">Your complete access portal to the offline AI Document Processing System.</p>
+
+        <div class="card">
+            <h2>🖥️ 1. Main Dashboard (Frontend)</h2>
+            <p>This is the main user interface where you can upload documents, review AI extractions, and download CSVs.</p>
+            <div class="button-group">
+                <a href="http://localhost:5173" target="_blank" class="btn">Open Application</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ 2. Backend API</h2>
+            <p>The Python FastAPI server that handles the database, document processing, and AI integrations.</p>
+            <div class="button-group">
+                <a href="http://127.0.0.1:8001/docs" target="_blank" class="btn secondary">View API Docs</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🧠 3. Local AI Engine (Ollama)</h2>
+            <p>To ensure AI extraction works 100% offline, keep this command running in your Mac's terminal:</p>
+            <code>ollama run llama3</code>
+        </div>
+        
+        <div class="card">
+            <h2>📂 4. Important File Locations</h2>
+            <p>Easily access your raw data and code on your Mac:</p>
+            <ul>
+                <li><strong>Local Database:</strong> <code>/Users/syamreddy/.gemini/antigravity/scratch/idp-system/backend/idp.db</code></li>
+                <li><strong>Uploaded PDFs:</strong> <code>/Users/syamreddy/.gemini/antigravity/scratch/idp-system/backend/data/media/uploads/</code></li>
+                <li><strong>Saved Code:</strong> <code>/Users/syamreddy/Documents/IDP_Modified_Files/</code></li>
+                <li><strong>Start Script:</strong> <code>./run_local.sh</code></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

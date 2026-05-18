@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum, JSON
 from sqlalchemy.sql import func
 from app.db.session import Base
 import enum
@@ -8,6 +8,7 @@ class DocumentStatus(str, enum.Enum):
     PROCESSING = "PROCESSING"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
+    APPROVED = "APPROVED"
 
 class Document(Base):
     __tablename__ = "documents"
@@ -19,3 +20,4 @@ class Document(Base):
     status = Column(Enum(DocumentStatus), default=DocumentStatus.UPLOADED)
     upload_time = Column(DateTime(timezone=True), server_default=func.now())
     user_id = Column(Integer, ForeignKey("users.id"))
+    extracted_data = Column(JSON, nullable=True)
