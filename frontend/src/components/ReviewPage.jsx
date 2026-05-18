@@ -89,7 +89,7 @@ const ReviewPage = () => {
     </div>
   );
 
-  const mediaUrl = `/media/${documentInfo.filename}`;
+  const mediaUrl = `${axios.defaults.baseURL || ''}/media/${documentInfo.filename}`;
   const summary = data.find(d => d.type === 'summary');
   const entities = data.filter(d => d.type === 'entity');
   const tableRows = data.filter(d => d.type === 'table');

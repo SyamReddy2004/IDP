@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = os.getenv("SECRET_KEY", "supersecretkey")
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost", "http://localhost:5173", "http://frontend:5173"]
+    BACKEND_CORS_ORIGINS: List[str] = ["*"]
 
     # Database (Using SQLite for local non-Docker development)
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./idp.db")
@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     
     # Ollama
     OLLAMA_HOST: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
+    # Google Gemini API
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 
     class Config:
         case_sensitive = True

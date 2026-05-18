@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.document import Document, DocumentStatus
+from app.core.config import settings
 import shutil
 import os
 import pdfplumber
@@ -73,7 +74,94 @@ def extract_text(file_path: str, filename: str):
     return "", 0.0
 
 
+def run_gemini_extraction(text: str, ocr_confidence: float, api_key: str) -> list:
+    snippet = text[:3500]
+    prompt = (
+        'Analyze this document. Return ONLY a JSON object with these keys:\n'
+        '"summary": one sentence summary.\n'
+        '"entities": list of {"field":"...","extractedValue":"..."} objects.\n'
+        '"tables": list of {"row":N,"data":"col1: val | col2: val"} if tables exist, else [].\n'
+        'No markdown. JSON only.\n\nDocument:\n' + snippet
+    )
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    payload = json.dumps({
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }]
+    }).encode('utf-8')
+
+    try:
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={'Content-Type': 'application/json'}
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            response_data = json.loads(resp.read().decode('utf-8'))
+            raw_response = response_data['candidates'][0]['content']['parts'][0]['text']
+            
+            # Extract JSON blob
+            json_match = re.search(r'\{[\s\S]*\}', raw_response)
+            if not json_match:
+                raise ValueError("No JSON found in Gemini response")
+            parsed = json.loads(json_match.group(0))
+
+            results = []
+            lm_confidence = 0.98
+            overall_confidence = round((ocr_confidence + lm_confidence) / 2, 2)
+
+            summary = parsed.get("summary", "")
+            if summary:
+                results.append({
+                    "id": str(uuid.uuid4()),
+                    "field": "📄 Document Summary",
+                    "extractedValue": summary,
+                    "confidence": overall_confidence,
+                    "type": "summary"
+                })
+
+            for item in parsed.get("entities", []):
+                if isinstance(item, dict):
+                    norm = {k.lower(): v for k, v in item.items()}
+                    field = norm.get("field", "")
+                    value = norm.get("extractedvalue", norm.get("value", ""))
+                    if field and value:
+                        results.append({
+                            "id": str(uuid.uuid4()),
+                            "field": str(field),
+                            "extractedValue": str(value),
+                            "confidence": overall_confidence,
+                            "type": "entity"
+                        })
+
+            for row in parsed.get("tables", []):
+                if isinstance(row, dict):
+                    results.append({
+                        "id": str(uuid.uuid4()),
+                        "field": f"🗂 Table Row {row.get('row', '')}",
+                        "extractedValue": str(row.get("data", "")),
+                        "confidence": overall_confidence,
+                        "type": "table"
+                    })
+
+            if results:
+                results[0]["overall_confidence"] = overall_confidence
+                return results
+
+    except Exception as e:
+        print(f"Gemini API error: {e}")
+    return []
+
+
 def run_ollama_extraction(text: str, ocr_confidence: float) -> list:
+    if settings.GEMINI_API_KEY:
+        print("Using Gemini API for document extraction...")
+        gemini_results = run_gemini_extraction(text, ocr_confidence, settings.GEMINI_API_KEY)
+        if gemini_results:
+            return gemini_results
+        print("Gemini failed or returned empty. Falling back to local Ollama...")
+
     # Only send first 2000 chars for speed
     snippet = text[:2000]
 
